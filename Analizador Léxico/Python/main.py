@@ -1,22 +1,59 @@
-import shlex
+from ply import lex
 
-def lexer(expression):
-    lexer = shlex.shlex(expression)
-    lexer.wordchars += '.,-=' 
-    lexer.quotes = '' 
-    lexer.whitespace_split = True  
-    tokens = list(lexer)
+tokens = (
+    'IDENTIFICADOR',
+    'NUMERO',
+    'OPERADOR',
+    'SIMBOLO_ESPECIAL',
+    'PALABRA_RESERVADA',
+    'CADENA',
+)
+
+t_NUMERO = r'\d+'
+t_OPERADOR = r'[+\-*/=]'
+t_SIMBOLO_ESPECIAL = r'[(),:]'
+t_CADENA = r'\"[^\"]*\"'
+
+t_ignore = ' \t'
+
+def t_error(t):
+    print("Carácter ilegal '%s'" % t.value[0])
+    t.lexer.skip(1)
+
+reserved = {
+    'print': 'PALABRA_RESERVADA',
+    'if': 'PALABRA_RESERVADA',
+    'else': 'PALABRA_RESERVADA',
+    'while': 'PALABRA_RESERVADA',
+    'for': 'PALABRA_RESERVADA',
+    'class': 'PALABRA_RESERVADA',
+    'int': 'PALABRA_RESERVADA',
+    'try': 'PALABRA_RESERVADA',
+    'except': 'PALABRA_RESERVADA',
+    'None': 'PALABRA_RESERVADA',
+    'and': 'PALABRA_RESERVADA',
+    'or': 'PALABRA_RESERVADA',
+    'import': 'PALABRA_RESERVADA',
+    'as': 'PALABRA_RESERVADA',
+    'def': 'PALABRA_RESERVADA',
+    'return': 'PALABRA_RESERVADA',
+}
+
+tokens += tuple(reserved.values())
+
+def t_IDENTIFICADOR(t):
+    r'[a-zA-Z_][a-zA-Z0-9_]*'
+    t.type = reserved.get(t.value, 'IDENTIFICADOR')
+    return t
+
+lexer = lex.lex()
+
+def analizador_lexico(expression):
+    lexer.input(expression)
     analyzed_tokens = []
 
-    for token in tokens:
-        if token.isdigit(): 
-            analyzed_tokens.append(("Número entero", token))
-        elif token in ['if', 'else', 'for', 'while', 'def', 'return']:  
-            analyzed_tokens.append(("Palabra reservada", token))
-        elif token in ['+', '-', '*', '/', '=', '==', '!=', '>', '<', '>=', '<=']:  
-            analyzed_tokens.append(("Símbolo", token))
-        else:
-            analyzed_tokens.append(("Identificador", token)) 
+    for tok in lexer:
+        analyzed_tokens.append((tok.type, tok.value))
 
     return analyzed_tokens
 
@@ -30,10 +67,10 @@ def main():
 
         if opcion == "1":
             texto = input("Por favor, ingrese el texto a analizar: ")
-            tokens = lexer(texto)
-            print("\nResultado del análisis léxico:")
+            tokens = analizador_lexico(texto)
+            print("\nSeparación de tokens:")
             for token_type, token_value in tokens:
-                print(f"Tipo: {token_type}, Valor: {token_value}")
+                print(f"{token_type}: {token_value}")
         elif opcion == "2":
             print("¡Hasta luego!")
             break
