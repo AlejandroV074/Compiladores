@@ -1,0 +1,3 @@
+def analizador_lexico(expression):
+    lexer.input(expression)
+    analyzed_tokens = []
