@@ -1,3 +1,9 @@
-def analizador_lexico(expression):
-    lexer.input(expression)
-    analyzed_tokens = []
+def suma(a, b):
+    resultado = a + b
+    return resultado
+
+if 1 == 1:
+    print("Verdadero")
+else:
+    print("Falso")
+
